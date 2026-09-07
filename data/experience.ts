@@ -1,0 +1,75 @@
+import { Experience } from "@/types/experience";
+
+export const experienceData: Experience[] = [
+  {
+    id: 1,
+    company: "Tech Corp Inc.",
+    companyWebsite: "https://techcorp.com",
+    companyLogo: "/images/companies/techcorp.jpg",
+    position: "Senior Full-Stack Developer",
+    location: "San Francisco, CA",
+    locationType: "hybrid",
+    startDate: "2022-06-01",
+    isCurrent: true,
+    description: "Leading a team of 5 developers building enterprise-scale web applications. Responsible for architecture decisions, code reviews, and mentoring junior developers.",
+    achievements: [
+      "Led the development of a microservices architecture that improved scalability by 200%",
+      "Implemented CI/CD pipeline reducing deployment time by 75%",
+      "Mentored 3 junior developers who were promoted within a year",
+      "Reduced technical debt by 40% through code refactoring",
+    ],
+    technologies: ["React", "Next.js", "TypeScript", "Node.js", "AWS", "Docker"],
+    industry: "Technology",
+    employmentType: "full-time",
+    links: [
+      { label: "Company Website", url: "https://techcorp.com" },
+    ],
+  },
+  {
+    id: 2,
+    company: "Startup Studios",
+    companyLogo: "/images/companies/startup.jpg",
+    position: "Full-Stack Developer",
+    location: "Remote",
+    locationType: "remote",
+    startDate: "2020-08-01",
+    endDate: "2022-05-01",
+    isCurrent: false,
+    description: "Built and maintained multiple web applications for various clients in the startup ecosystem. Worked closely with product teams to deliver features quickly.",
+    achievements: [
+      "Developed 5+ production applications used by 50,000+ users",
+      "Reduced load time by 60% through code optimization",
+      "Implemented real-time features using WebSocket",
+      "Won 'Best Innovation' award for a client project",
+    ],
+    technologies: ["Vue.js", "Node.js", "MongoDB", "Firebase", "GraphQL"],
+    industry: "Startups",
+    employmentType: "full-time",
+  },
+  {
+    id: 3,
+    company: "Freelance",
+    position: "Freelance Developer",
+    location: "Remote",
+    locationType: "remote",
+    startDate: "2019-01-01",
+    endDate: "2020-07-01",
+    isCurrent: false,
+    description: "Provided web development services to various clients including small businesses, startups, and non-profits.",
+    achievements: [
+      "Successfully delivered 20+ client projects",
+      "Maintained 100% client satisfaction rate",
+      "Implemented custom solutions for unique business needs",
+    ],
+    technologies: ["React", "WordPress", "PHP", "JavaScript", "CSS"],
+    industry: "Freelance",
+    employmentType: "freelance",
+  },
+];
+
+export const experienceStats = {
+  totalYears: 5,
+  companies: 3,
+  projects: 25,
+  clients: 30,
+};

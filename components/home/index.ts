@@ -1,0 +1,10 @@
+export { Hero } from "./hero";
+export { AboutPreview } from "./about-preview";
+export { Stats } from "./stats";
+export { SkillsPreview } from "./skills-preview";
+export { FeaturedProjects } from "./featured-projects";
+export { ServicesPreview } from "./services-preview";
+export { ExperiencePreview } from "./experience-preview";
+export { TestimonialsPreview } from "./testimonials-preview";
+export { BlogPreview } from "./blog-preview";
+export { CTA } from "./cta";

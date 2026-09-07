@@ -1,0 +1,830 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  // url is now in prisma.config.ts
+}
+
+// ============================================
+// ENUMS
+// ============================================
+
+enum UserRole {
+  ADMIN
+  USER
+  GUEST
+}
+
+enum ProjectStatus {
+  DRAFT
+  IN_PROGRESS
+  COMPLETED
+  MAINTENANCE
+  ARCHIVED
+}
+
+enum ProjectCategory {
+  WEB
+  MOBILE
+  AI
+  DESIGN
+  ECOMMERCE
+  SAAS
+  OPEN_SOURCE
+  GAME
+  DATA
+  BLOCKCHAIN
+}
+
+enum BlogStatus {
+  DRAFT
+  PUBLISHED
+  SCHEDULED
+  ARCHIVED
+}
+
+enum BlogCategory {
+  TECHNOLOGY
+  PROGRAMMING
+  DESIGN
+  CAREER
+  LIFE
+  TUTORIAL
+  REVIEW
+  NEWS
+  OTHER
+}
+
+enum TestimonialStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum ServicePricingModel {
+  FIXED
+  HOURLY
+  MONTHLY
+  PROJECT_BASED
+  RETAINER
+}
+
+enum ContactStatus {
+  NEW
+  READ
+  REPLIED
+  ARCHIVED
+}
+
+enum ExperienceLocationType {
+  REMOTE
+  HYBRID
+  ON_SITE
+}
+
+enum ExperienceEmploymentType {
+  FULL_TIME
+  PART_TIME
+  CONTRACT
+  FREELANCE
+  INTERNSHIP
+  VOLUNTEER
+}
+
+enum EducationDegree {
+  ASSOCIATE
+  BACHELOR
+  MASTER
+  DOCTORATE
+  CERTIFICATE
+  DIPLOMA
+}
+
+enum NotificationType {
+  INFO
+  SUCCESS
+  WARNING
+  ERROR
+}
+
+enum NotificationPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum SkillCategory {
+  FRONTEND
+  BACKEND
+  DATABASE
+  DEVOPS
+  MOBILE
+  DESIGN
+  LANGUAGE
+  FRAMEWORK
+  LIBRARY
+  TOOL
+  OTHER
+}
+
+// ============================================
+// USER & AUTH
+// ============================================
+
+model User {
+  id              String    @id @default(cuid())
+  email           String    @unique
+  name            String?
+  password        String?
+  avatar          String?
+  bio             String?
+  location        String?
+  title           String?
+  experienceYears Int?
+  github          String?
+  linkedin        String?
+  twitter         String?
+  website         String?
+  role            UserRole  @default(USER)
+  isActive        Boolean   @default(true)
+  emailVerified   Boolean   @default(false)
+  lastLogin       DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // Relations
+  sessions           Session[]
+  projects           Project[]
+  blogPosts          BlogPost[]
+  testimonials       Testimonial[]
+  messages           Message[]
+  notifications      Notification[]
+  activities         ActivityLog[]
+  blogComments       BlogComment[]
+  blogCommentReplies BlogCommentReply[]
+  blogCommentLikes   BlogCommentLike[]
+
+  @@map("users")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  userId       String
+  sessionToken String   @unique
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user         User     @relation(fields: [userId], references: [id])
+
+  @@map("sessions")
+}
+
+// ============================================
+// PROJECTS
+// ============================================
+
+model Project {
+  id              String          @id @default(cuid())
+  title           String
+  slug            String          @unique
+  description     String
+  longDescription String?
+  image           String?
+  images          String[]        @default([])
+  category        ProjectCategory
+  status          ProjectStatus   @default(DRAFT)
+  github          String?
+  demo            String?
+  link            String?
+  featured        Boolean         @default(false)
+  client          String?
+  role            String?
+  teamSize        Int?
+  startDate       DateTime?
+  endDate         DateTime?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  // Relations
+  userId          String?
+  user            User?           @relation(fields: [userId], references: [id])
+  technologies    ProjectTechnology[]
+  challenges      ProjectChallenge[]
+  solutions       ProjectSolution[]
+  features        ProjectFeature[]
+  metrics         ProjectMetric[]
+  tags            Tag[]           @relation("ProjectTags")
+  testimonials    Testimonial[]
+
+  @@map("projects")
+}
+
+model ProjectTechnology {
+  id        String   @id @default(cuid())
+  projectId String
+  name      String
+  version   String?
+  icon      String?
+  category  String?
+
+  project   Project  @relation(fields: [projectId], references: [id])
+
+  @@map("project_technologies")
+}
+
+model ProjectChallenge {
+  id          String   @id @default(cuid())
+  projectId   String
+  title       String
+  description String
+  order       Int      @default(0)
+
+  project     Project  @relation(fields: [projectId], references: [id])
+
+  @@map("project_challenges")
+}
+
+model ProjectSolution {
+  id          String   @id @default(cuid())
+  projectId   String
+  title       String
+  description String
+  order       Int      @default(0)
+
+  project     Project  @relation(fields: [projectId], references: [id])
+
+  @@map("project_solutions")
+}
+
+model ProjectFeature {
+  id          String   @id @default(cuid())
+  projectId   String
+  title       String
+  description String?
+  icon        String?
+  order       Int      @default(0)
+
+  project     Project  @relation(fields: [projectId], references: [id])
+
+  @@map("project_features")
+}
+
+model ProjectMetric {
+  id          String   @id @default(cuid())
+  projectId   String
+  label       String
+  value       String
+  description String?
+  icon        String?
+  order       Int      @default(0)
+
+  project     Project  @relation(fields: [projectId], references: [id])
+
+  @@map("project_metrics")
+}
+
+// ============================================
+// BLOG
+// ============================================
+
+model BlogPost {
+  id            String       @id @default(cuid())
+  title         String
+  slug          String       @unique
+  excerpt       String?
+  content       String       @db.Text
+  coverImage    String?
+  coverImageAlt String?
+  category      BlogCategory
+  status        BlogStatus   @default(DRAFT)
+  readingTime   Int?         @default(0)
+  views         Int          @default(0)
+  likes         Int          @default(0)
+  publishedDate DateTime?
+  scheduledDate DateTime?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  // Relations
+  authorId      String
+  author        User         @relation(fields: [authorId], references: [id])
+  tags          Tag[]        @relation("BlogTags")
+  comments      BlogComment[]
+  analytics     BlogAnalytics[]
+
+  @@map("blog_posts")
+}
+
+model BlogComment {
+  id          String   @id @default(cuid())
+  postId      String
+  authorId    String?
+  authorName  String
+  authorEmail String?
+  content     String   @db.Text
+  isApproved  Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  post        BlogPost            @relation(fields: [postId], references: [id])
+  author      User?               @relation(fields: [authorId], references: [id])
+  replies     BlogCommentReply[]
+  likes       BlogCommentLike[]
+
+  @@map("blog_comments")
+}
+
+model BlogCommentReply {
+  id         String   @id @default(cuid())
+  commentId  String
+  authorId   String?
+  authorName String
+  content    String   @db.Text
+  isApproved Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  // Relations
+  comment    BlogComment @relation(fields: [commentId], references: [id])
+  author     User?       @relation(fields: [authorId], references: [id])
+
+  @@map("blog_comment_replies")
+}
+
+model BlogCommentLike {
+  id        String   @id @default(cuid())
+  commentId String
+  userId    String
+
+  // Relations
+  comment   BlogComment @relation(fields: [commentId], references: [id])
+  user      User        @relation(fields: [userId], references: [id])
+
+  @@unique([commentId, userId])
+  @@map("blog_comment_likes")
+}
+
+model BlogAnalytics {
+  id          String   @id @default(cuid())
+  postId      String
+  date        DateTime @default(now())
+  views       Int      @default(0)
+  uniqueViews Int      @default(0)
+  avgTime     Float?   @default(0)
+
+  // Relations
+  post        BlogPost @relation(fields: [postId], references: [id])
+
+  @@map("blog_analytics")
+}
+
+// ============================================
+// TAGS (Shared between Projects & Blog)
+// ============================================
+
+model Tag {
+  id          String    @id @default(cuid())
+  name        String    @unique
+  slug        String    @unique
+  description String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relations
+  projects    Project[]  @relation("ProjectTags")
+  blogPosts   BlogPost[] @relation("BlogTags")
+
+  @@map("tags")
+}
+
+// ============================================
+// SKILLS
+// ============================================
+
+model Skill {
+  id                String            @id @default(cuid())
+  name              String
+  category          SkillCategory
+  level             Int               @default(0)
+  icon              String?
+  color             String?
+  description       String?
+  yearsOfExperience Float?
+  order             Int               @default(0)
+  isActive          Boolean           @default(true)
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  // Relations
+  technologies      SkillTechnology[]
+  certifications    Certification[]
+
+  @@map("skills")
+}
+
+model SkillTechnology {
+  id      String @id @default(cuid())
+  skillId String
+  name    String
+  version String?
+  order   Int    @default(0)
+
+  // Relations
+  skill   Skill  @relation(fields: [skillId], references: [id])
+
+  @@map("skill_technologies")
+}
+
+// ============================================
+// SERVICES
+// ============================================
+
+model Service {
+  id              String                @id @default(cuid())
+  title           String
+  slug            String                @unique
+  description     String
+  longDescription String?
+  icon            String?
+  price           String?
+  pricingModel    ServicePricingModel?
+  deliveryTime    String?
+  isAvailable     Boolean               @default(true)
+  featured        Boolean               @default(false)
+  order           Int                   @default(0)
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
+
+  // Relations
+  features        ServiceFeature[]
+  packages        ServicePackage[]
+  technologies    ServiceTechnology[]
+  testimonials    Testimonial[]
+
+  @@map("services")
+}
+
+model ServiceFeature {
+  id          String  @id @default(cuid())
+  serviceId   String
+  name        String
+  description String?
+  icon        String?
+  order       Int     @default(0)
+
+  // Relations
+  service     Service @relation(fields: [serviceId], references: [id])
+
+  @@map("service_features")
+}
+
+model ServicePackage {
+  id          String   @id @default(cuid())
+  serviceId   String
+  name        String
+  description String?
+  price       String
+  features    String[]
+  isPopular   Boolean  @default(false)
+  order       Int      @default(0)
+
+  // Relations
+  service     Service  @relation(fields: [serviceId], references: [id])
+
+  @@map("service_packages")
+}
+
+model ServiceTechnology {
+  id        String @id @default(cuid())
+  serviceId String
+  name      String
+  version   String?
+
+  // Relations
+  service   Service @relation(fields: [serviceId], references: [id])
+
+  @@map("service_technologies")
+}
+
+// ============================================
+// EXPERIENCE
+// ============================================
+
+model Experience {
+  id             String                      @id @default(cuid())
+  company        String
+  companyWebsite String?
+  companyLogo    String?
+  position       String
+  location       String
+  locationType   ExperienceLocationType
+  employmentType ExperienceEmploymentType
+  startDate      DateTime
+  endDate        DateTime?
+  isCurrent      Boolean                     @default(false)
+  description    String                      @db.Text
+  industry       String?
+  createdAt      DateTime                    @default(now())
+  updatedAt      DateTime                    @updatedAt
+
+  // Relations
+  achievements   ExperienceAchievement[]
+  technologies   ExperienceTechnology[]
+  links          ExperienceLink[]
+
+  @@map("experiences")
+}
+
+model ExperienceAchievement {
+  id           String    @id @default(cuid())
+  experienceId String
+  description  String
+  order        Int       @default(0)
+
+  // Relations
+  experience   Experience @relation(fields: [experienceId], references: [id])
+
+  @@map("experience_achievements")
+}
+
+model ExperienceTechnology {
+  id           String @id @default(cuid())
+  experienceId String
+  name         String
+  order        Int    @default(0)
+
+  // Relations
+  experience   Experience @relation(fields: [experienceId], references: [id])
+
+  @@map("experience_technologies")
+}
+
+model ExperienceLink {
+  id           String @id @default(cuid())
+  experienceId String
+  label        String
+  url          String
+  order        Int    @default(0)
+
+  // Relations
+  experience   Experience @relation(fields: [experienceId], references: [id])
+
+  @@map("experience_links")
+}
+
+// ============================================
+// EDUCATION
+// ============================================
+
+model Education {
+  id                 String          @id @default(cuid())
+  institution        String
+  institutionWebsite String?
+  institutionLogo    String?
+  degree             EducationDegree
+  field              String
+  startDate          DateTime
+  endDate            DateTime?
+  isCurrent          Boolean         @default(false)
+  grade              String?
+  gpa                String?
+  description        String?         @db.Text
+  location           String
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+
+  // Relations
+  achievements       EducationAchievement[]
+  courses            EducationCourse[]
+  certifications     Certification[]
+
+  @@map("educations")
+}
+
+model EducationAchievement {
+  id           String    @id @default(cuid())
+  educationId  String
+  description  String
+  order        Int       @default(0)
+
+  // Relations
+  education    Education @relation(fields: [educationId], references: [id])
+
+  @@map("education_achievements")
+}
+
+model EducationCourse {
+  id           String @id @default(cuid())
+  educationId  String
+  name         String
+  order        Int    @default(0)
+
+  // Relations
+  education    Education @relation(fields: [educationId], references: [id])
+
+  @@map("education_courses")
+}
+
+// ============================================
+// CERTIFICATIONS
+// ============================================
+
+model Certification {
+  id             String    @id @default(cuid())
+  name           String
+  issuer         String
+  issuerWebsite  String?
+  issueDate      DateTime
+  expirationDate DateTime?
+  credentialId   String?
+  credentialUrl  String?
+  description    String?
+  isActive       Boolean   @default(true)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  // Relations
+  educationId    String?
+  education      Education? @relation(fields: [educationId], references: [id])
+  skillId        String?
+  skill          Skill?     @relation(fields: [skillId], references: [id])
+
+  @@map("certifications")
+}
+
+// ============================================
+// TESTIMONIALS
+// ============================================
+
+model Testimonial {
+  id            String             @id @default(cuid())
+  author        String
+  authorTitle   String?
+  authorCompany String?
+  authorImage   String?
+  authorEmail   String?
+  content       String             @db.Text
+  rating        Int?               @default(5)
+  status        TestimonialStatus  @default(PENDING)
+  isVerified    Boolean            @default(false)
+  isFeatured    Boolean            @default(false)
+  date          DateTime           @default(now())
+  response      String?            @db.Text
+  responseDate  DateTime?
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+
+  // Relations
+  userId        String?
+  user          User?              @relation(fields: [userId], references: [id])
+  projectId     String?
+  project       Project?           @relation(fields: [projectId], references: [id])
+  serviceId     String?
+  service       Service?           @relation(fields: [serviceId], references: [id])
+
+  @@map("testimonials")
+}
+
+// ============================================
+// CONTACT / MESSAGES
+// ============================================
+
+model Message {
+  id        String         @id @default(cuid())
+  name      String
+  email     String
+  subject   String?
+  message   String         @db.Text
+  status    ContactStatus  @default(NEW)
+  isRead    Boolean        @default(false)
+  replied   Boolean        @default(false)
+  reply     String?        @db.Text
+  repliedAt DateTime?
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+
+  // Relations
+  userId    String?
+  user      User?          @relation(fields: [userId], references: [id])
+
+  @@map("messages")
+}
+
+// ============================================
+// NOTIFICATIONS
+// ============================================
+
+model Notification {
+  id        String               @id @default(cuid())
+  userId    String
+  title     String
+  message   String
+  type      NotificationType     @default(INFO)
+  priority  NotificationPriority @default(MEDIUM)
+  isRead    Boolean              @default(false)
+  link      String?
+  createdAt DateTime             @default(now())
+  readAt    DateTime?
+
+  // Relations
+  user      User                 @relation(fields: [userId], references: [id])
+
+  @@map("notifications")
+}
+
+// ============================================
+// ACTIVITY LOG
+// ============================================
+
+model ActivityLog {
+  id        String   @id @default(cuid())
+  userId    String
+  action    String
+  details   String?  @db.Text
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  // Relations
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@map("activity_logs")
+}
+
+// ============================================
+// ANALYTICS
+// ============================================
+
+model SiteAnalytics {
+  id            String   @id @default(cuid())
+  date          DateTime @default(now())
+  pageViews     Int      @default(0)
+  uniqueVisitors Int     @default(0)
+  bounceRate    Float?   @default(0)
+  avgSessionTime Float?  @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  pageAnalytics PageAnalytics[]
+
+  @@map("site_analytics")
+}
+
+model PageAnalytics {
+  id          String   @id @default(cuid())
+  siteId      String
+  path        String
+  title       String?
+  views       Int      @default(0)
+  uniqueViews Int      @default(0)
+  avgTime     Float?   @default(0)
+  date        DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  site        SiteAnalytics @relation(fields: [siteId], references: [id])
+
+  @@map("page_analytics")
+}
+
+// ============================================
+// SUBSCRIBERS (Newsletter)
+// ============================================
+
+model Subscriber {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("subscribers")
+}
+
+// ============================================
+// SITE CONFIGURATION
+// ============================================
+
+model SiteConfig {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  value       String   @db.Text
+  description String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("site_configs")
+}

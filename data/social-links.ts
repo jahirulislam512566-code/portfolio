@@ -1,0 +1,61 @@
+export const socialLinksData = [
+  {
+    platform: "GitHub",
+    url: "https://github.com/jahirulislam512566-code",
+    icon: "Github",
+    color: "#181717",
+    label: "GitHub Profile",
+    followers: "1,200+",
+    active: true,
+  },
+  {
+    platform: "LinkedIn",
+    url: "https://linkedin.com/in/johndoe",
+    icon: "Linkedin",
+    color: "#0A66C2",
+    label: "LinkedIn Profile",
+    followers: "5,000+",
+    active: true,
+  },
+  {
+    platform: "Twitter",
+    url: "https://twitter.com/johndoe",
+    icon: "Twitter",
+    color: "#1DA1F2",
+    label: "Twitter Profile",
+    followers: "2,500+",
+    active: true,
+  },
+  {
+    platform: "YouTube",
+    url: "https://youtube.com/@johndoe",
+    icon: "Youtube",
+    color: "#FF0000",
+    label: "YouTube Channel",
+    followers: "10,000+",
+    active: true,
+  },
+  {
+    platform: "Instagram",
+    url: "https://instagram.com/johndoe",
+    icon: "Instagram",
+    color: "#E4405F",
+    label: "Instagram Profile",
+    followers: "3,000+",
+    active: true,
+  },
+  {
+    platform: "Medium",
+    url: "https://medium.com/@johndoe",
+    icon: "Medium",
+    color: "#000000",
+    label: "Medium Blog",
+    followers: "1,000+",
+    active: false,
+  },
+];
+
+export const socialStats = {
+  totalFollowers: "21,700+",
+  platforms: socialLinksData.filter(s => s.active).length,
+};
